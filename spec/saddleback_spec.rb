@@ -16,6 +16,7 @@ describe SaddlebackScheduleScraper, '#get_class_info' do
   end
   it "returns nil for non-existent class" do
     scraper.get_class_status('20132', '12398').should eq(nil)
+    scraper.get_class_info('20132', '12398').should eq(nil)
   end
 end
 

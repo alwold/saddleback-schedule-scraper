@@ -6,21 +6,30 @@ require_relative 'saddleback_class_info'
 class SaddlebackScheduleScraper
   def get_class_info(term_code, clscode)
     doc = fetch_info(term_code, clscode)
-    name = doc.xpath("//table[@class='course_title_bg']/tr/td[position()=2]/div")[0].text.strip
-    rows = doc.xpath("//table[tr/th[text()='Ticket']]/tr[count(td)>2]")
-    cells = rows[0].xpath("td")
-    schedule = cells[1].text.strip << " " << cells[2].text.strip
-    return SaddlebackClassInfo.new(name, schedule)
+    name_div = doc.xpath("//table[@class='course_title_bg']/tr/td[position()=2]/div")
+    if !name_div.empty?
+      name = name_div[0].text.strip
+      rows = doc.xpath("//table[tr/th[text()='Ticket']]/tr[count(td)>2]")
+      cells = rows[0].xpath("td")
+      schedule = cells[1].text.strip << " " << cells[2].text.strip
+      return SaddlebackClassInfo.new(name, schedule)
+    else
+      return nil
+    end
   end
 
   def get_class_status(term_code, clscode)
     doc = fetch_info(term_code, clscode)
     rows = doc.xpath("//table[tr/th[text()='Ticket']]/tr[count(td)>2]")
-    cells = rows[0].xpath("td")
-    if cells[5].xpath("b[@class='section_closed' or @class='section_full']").empty?
-      return :open
+    if !rows.empty?
+      cells = rows[0].xpath("td")
+      if cells[5].xpath("b[@class='section_closed' or @class='section_full']").empty?
+        return :open
+      else
+        return :closed
+      end
     else
-      return :closed
+      return nil
     end
   end
 
