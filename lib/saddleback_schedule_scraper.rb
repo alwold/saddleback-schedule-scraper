@@ -17,7 +17,7 @@ class SaddlebackScheduleScraper
     doc = fetch_info(term_code, clscode)
     rows = doc.xpath("//table[tr/th[text()='Ticket']]/tr[count(td)>2]")
     cells = rows[0].xpath("td")
-    if cells[5].xpath("b[@class='section_closed']").empty?
+    if cells[5].xpath("b[@class='section_closed' or @class='section_full']").empty?
       return :open
     else
       return :closed
@@ -36,40 +36,40 @@ private
   def fetch_info(term_code, clscode)
     uri = URI("http://www1.socccd.cc.ca.us/eservices/ClassFind.asp")
     res = Net::HTTP.post_form(uri, 
-      # 'siteid' => 'S', 
+      'siteid' => 'S', 
       'semid' => term_code,
-      # 'college' => 'S',
-      # 'subject' => "'ENGLCB'",
+      'college' => 'S',
       'status' => "'O','C'",
+      # the next fields are for day/time (i.e. mm = monday morning, re = thursday evening)
       'mm' => 'ON',
       'tm' => 'ON',
       'wm' => 'ON',
-      # &rm=ON
-      # &fm=ON
-      # &sm=ON
-      # &um=ON
-      # &ma=ON
-      # &ta=ON
-      # &wa=ON
-      # &ra=ON
-      # &fa=ON
-      # &sa=ON
-      # &ua=ON
-      # &me=ON
-      # &te=ON
-      # &we=ON
-      # &re=ON
-      # &fe=ON
-      # &se=ON
-      # &ue=ON
-      # &CheckBoxValue=On
-      'clscode' => clscode
-      # &termtype=
-      # &location=any
-      # &keywords=
-      # &instructor=
-      # &igetc=any
-      # &submit=Submit
+      'rm' => 'ON',
+      'fm' => 'ON',
+      'sm' => 'ON',
+      'um' => 'ON',
+      'ma' => 'ON',
+      'ta' => 'ON',
+      'wa' => 'ON',
+      'ra' => 'ON',
+      'fa' => 'ON',
+      'sa' => 'ON',
+      'ua' => 'ON',
+      'me' => 'ON',
+      'te' => 'ON',
+      'we' => 'ON',
+      're' => 'ON',
+      'fe' => 'ON',
+      'se' => 'ON',
+      'ue' => 'ON',
+      'CheckBoxValue' => 'On',
+      'clscode' => clscode,
+      'termtype' => '',
+      'location' => 'any',
+      'keywords' => '',
+      'instructor' => '',
+      'igetc' => 'any',
+      'submit' => 'Submit',
     )
     doc = Nokogiri::HTML(res.body)
     return doc
