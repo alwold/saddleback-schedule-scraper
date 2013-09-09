@@ -1,6 +1,5 @@
 require 'net/http'
 require 'nokogiri'
-require 'ruby-debug'
 require_relative 'saddleback_class_info'
 
 class SaddlebackScheduleScraper
