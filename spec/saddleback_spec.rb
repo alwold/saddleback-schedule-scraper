@@ -1,5 +1,6 @@
 require 'saddleback_schedule_scraper'
 require 'class_info'
+require 'faraday'
 
 describe SaddlebackScheduleScraper, '#get_class_info' do
   scraper = SaddlebackScheduleScraper.new
@@ -43,14 +44,59 @@ def get_doc(url)
   Nokogiri::HTML(res.body)
 end
 
+def post_doc(host, path, params)
+    conn = Faraday.new(url: host) do |faraday|
+    faraday.request :url_encoded
+    faraday.adapter Faraday.default_adapter
+  end
+
+  response = conn.post path, params
+  Nokogiri::HTML(response.body)
+end
+
 def get_current_term
   doc = get_doc('http://www.saddleback.edu/cs/')
   doc.xpath("//form[@method='post']/input[@name='semid']/@value").text
 end
 
 def get_class(term, status)
-  url = "https://mysite.socccd.edu/eservices/ClassFind.asp?siteID=A&termID=#{term}&termtype=&mktcode=AC00&header=Accounting"
-  doc = get_doc(url)
+  doc = post_doc("https://mysite.socccd.edu", "/eservices/ClassFind.asp", {
+    siteid: 'S',
+    semid: term,
+    college: 'S',
+    subject: 'any',
+    # TODO just use status?
+    status: "'O','C'",
+    mm: 'ON',
+    tm: 'ON',
+    wm: 'ON',
+    rm: 'ON',
+    fm: 'ON',
+    sm: 'ON',
+    um: 'ON',
+    ma: 'ON',
+    ta: 'ON',
+    wa: 'ON',
+    ra: 'ON',
+    fa: 'ON',
+    sa: 'ON',
+    ua: 'ON',
+    me: 'ON',
+    te: 'ON',
+    we: 'ON',
+    re: 'ON',
+    fe: 'ON',
+    se: 'ON',
+    ue: 'ON',
+    CheckBoxValue: 'On',
+    clscode: '',
+    termtype: '',
+    location: 'any',
+    keywords: '',
+    instructor: '',
+    igetc: 'any',
+    submit: 'Submit'
+    })
   if status == :closed
     search_class = 'section_full'
   else
